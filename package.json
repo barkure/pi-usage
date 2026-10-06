@@ -1,7 +1,7 @@
 {
   "name": "pi-usage",
   "version": "0.1.0",
-  "description": "Pi footer quota for DeepSeek, Grok, and OpenCode Go",
+  "description": "Show remaining quota for signed-in Pi providers",
   "type": "module",
   "keywords": ["pi-package"],
   "license": "MIT",

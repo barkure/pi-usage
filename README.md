@@ -1,27 +1,24 @@
 # pi-usage
 
-Pi footer quota for three accounts already stored in `~/.pi/agent/auth.json`:
+Run `/usage` to show remaining quota for signed-in Pi providers.
 
-| Source | Credential | Endpoint |
-|---|---|---|
-| DeepSeek | `deepseek` API key | `GET https://api.deepseek.com/user/balance` |
-| OpenCode Go | `opencode-go` API key | `GET https://opencode.ai/zen/go/v1/usage` |
-| Grok | `xai` OAuth access token | unofficial `cli-chat-proxy.grok.com` billing |
+Supported providers:
 
-The footer shows a compact line such as `DS $12.40  Go 49%  Grok —`. Run `/usage` for reset times. Results are cached for 60 seconds and refresh on session start and turn end.
-
-Grok's billing route is not a public xAI API. A missing percent is shown as `—` rather than invented as zero. An expired access token needs `/login xai`; this package does not refresh tokens itself.
+- DeepSeek
+- xAI
+- OpenCode Go
+- Z.AI
+- Z.AI Coding CN
+- Kimi For Coding
+- Moonshot AI
+- Moonshot AI CN
 
 ## Install
 
-From a git remote:
-
 ```bash
-pi install git:github.com/you/pi-usage
+pi install git:github.com/barkure/pi-usage
 ```
 
-From this checkout, without copying:
+## License
 
-```bash
-pi install /Users/barkure/Projects/pi-usage
-```
+[MIT](LICENSE)
