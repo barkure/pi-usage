@@ -1,0 +1,14 @@
+{
+  "name": "pi-usage",
+  "version": "0.1.0",
+  "description": "Pi footer quota for DeepSeek, Grok, and OpenCode Go",
+  "type": "module",
+  "keywords": ["pi-package"],
+  "license": "MIT",
+  "pi": {
+    "extensions": ["./extensions/index.ts"]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  }
+}
