@@ -199,14 +199,9 @@ async function fetchXai() {
   const percent = numberField(config?.creditUsagePercent) ?? (end ? 0 : undefined);
   if (percent === undefined) throw new Error("billing response missing credit usage");
   const shown = leftPercent(percent);
-  const window = period?.type === "USAGE_PERIOD_TYPE_WEEKLY"
-    ? "Weekly"
-    : period?.type === "USAGE_PERIOD_TYPE_MONTHLY"
-      ? "Monthly"
-      : "";
   return {
     short: shown,
-    rows: [{ window, left: shown, ...timed(end) }],
+    rows: [{ window: "", left: shown, ...timed(end) }],
   };
 }
 
