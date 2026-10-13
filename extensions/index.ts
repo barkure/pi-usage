@@ -2,6 +2,7 @@ import { readStoredCredential, type ExtensionAPI, type ExtensionContext } from "
 
 const CACHE_MS = 60_000;
 const TIMEOUT_MS = 15_000;
+const USER_AGENT = "pi-usage/26.10.13";
 
 type Theme = ExtensionContext["ui"]["theme"];
 
@@ -178,7 +179,7 @@ async function fetchXai() {
   const headers = {
     Authorization: `Bearer ${token}`,
     Accept: "application/json",
-    "User-Agent": "pi-usage/0.1.0",
+    "User-Agent": USER_AGENT,
   };
   const user = await getJson("https://cli-chat-proxy.grok.com/v1/user", headers);
   const userId = typeof user.userId === "string" ? user.userId : undefined;
@@ -188,13 +189,24 @@ async function fetchXai() {
     "x-userid": userId,
   });
   const config = isRecord(billing.config) ? billing.config : undefined;
-  const percent = numberField(config?.creditUsagePercent);
   const period = isRecord(config?.currentPeriod) ? config.currentPeriod : undefined;
-  const end = typeof period?.end === "string" ? period.end : undefined;
+  const end = typeof period?.end === "string"
+    ? period.end
+    : typeof config?.billingPeriodEnd === "string"
+      ? config.billingPeriodEnd
+      : undefined;
+  // proto3 omits a zero creditUsagePercent. A period without it is 0% used, not a failed read.
+  const percent = numberField(config?.creditUsagePercent) ?? (end ? 0 : undefined);
+  if (percent === undefined) throw new Error("billing response missing credit usage");
   const shown = leftPercent(percent);
+  const window = period?.type === "USAGE_PERIOD_TYPE_WEEKLY"
+    ? "Weekly"
+    : period?.type === "USAGE_PERIOD_TYPE_MONTHLY"
+      ? "Monthly"
+      : "";
   return {
     short: shown,
-    rows: [{ window: "", left: shown, ...timed(percent === undefined ? "omitted" : end) }],
+    rows: [{ window, left: shown, ...timed(end) }],
   };
 }
 
@@ -203,7 +215,7 @@ async function fetchOpenCodeGo() {
   if (!key) return undefined;
   const body = await getJson("https://opencode.ai/zen/go/v1/usage", {
     Authorization: `Bearer ${key}`,
-    "User-Agent": "pi-usage/0.1.0",
+    "User-Agent": USER_AGENT,
   });
   const usage = isRecord(body.usage) ? body.usage : body;
   const monthly = isRecord(usage.monthly) ? usage.monthly : undefined;
@@ -227,7 +239,7 @@ async function fetchZai(providerId: string, origin: string) {
   const body = await getJson(`${origin}/api/monitor/usage/quota/limit`, {
     Authorization: token,
     Accept: "application/json",
-    "User-Agent": "pi-usage/0.1.0",
+    "User-Agent": USER_AGENT,
   });
   const data = isRecord(body.data) ? body.data : body;
   const limits = Array.isArray(data.limits) ? data.limits : [];
@@ -250,7 +262,7 @@ async function fetchKimi() {
   const body = await getJson("https://api.kimi.com/coding/v1/usages", {
     Authorization: `Bearer ${token}`,
     Accept: "application/json",
-    "User-Agent": "pi-usage/0.1.0",
+    "User-Agent": USER_AGENT,
   });
   const usages = isRecord(body.usages) ? body.usages : undefined;
   const rows: UsageRow[] = [];
@@ -273,7 +285,7 @@ async function fetchMoonshot(providerId: string, origin: string, symbol: string)
   const body = await getJson(`${origin}/v1/users/me/balance`, {
     Authorization: `Bearer ${token}`,
     Accept: "application/json",
-    "User-Agent": "pi-usage/0.1.0",
+    "User-Agent": USER_AGENT,
   });
   if (body.code !== 0 || body.status !== true) throw new Error("balance request rejected");
   const data = isRecord(body.data) ? body.data : undefined;
